@@ -1,0 +1,9 @@
+
+img_path: ""
+bootstrap_path: ""
+tpl_path: ""
+
+db:
+  user: "postgres"
+  password: ""
+  host: "localhost/BookStore?sslmode=disable"

@@ -1,15 +1,5 @@
-<!doctype html>
+{{template "header" . }}
 
-<html>
-    <head>
-        <title>{{.title}}</title>
-        {{include "layouts/header"}}
-    </head>
+{{template "books/booklist" . }}
 
-    <body>
-        <a href="/"><- Back home!</a>
-        {{template "booklist" .}}
-        <hr>
-        {{include "layouts/footer"}}
-    </body>
-</html>
+{{template "footer" . }}

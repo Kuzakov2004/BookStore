@@ -26,7 +26,7 @@ func NewBookRepo(db *sql.DB) (BookRepo, error) {
 											FROM store.books b 
 											JOIN store.publishers p ON (b.publisher_id = p.id)
 											JOIN store.authors a ON (b.author_id = a.id)
-											WHERE b.genre := $1 ORDER BY b.title DESC
+											WHERE b.genre = $1 OR $1 = '' OR $1 IS NULL ORDER BY b.title DESC
     										LIMIT $2 OFFSET $3`)
 	if e != nil {
 		return nil, e
@@ -36,7 +36,7 @@ func NewBookRepo(db *sql.DB) (BookRepo, error) {
 											FROM store.books b 
 											JOIN store.publishers p ON (b.publisher_id = p.id)
 											JOIN store.authors a ON (b.author_id = a.id)
-											WHERE b.genre := $1`)
+											WHERE b.genre = $1 OR $1 = '' OR $1 IS NULL`)
 	if e != nil {
 		return nil, e
 	}
@@ -45,7 +45,7 @@ func NewBookRepo(db *sql.DB) (BookRepo, error) {
 											FROM store.books b 
 											JOIN store.publishers p ON (b.publisher_id = p.id)
 											JOIN store.authors a ON (b.author_id = a.id)
-											WHERE UPPER(b.genre) like $1 OR UPPER(b.isbn) like $2 OR UPPER(b.title) like $3 OR UPPER(p.name) like $4 OR UPPER(a.first_name || ' ' || a.last_name) like $5 
+											WHERE UPPER(b.genre) like $1 OR UPPER(b.isbn) like $1 OR UPPER(b.title) like $1 OR UPPER(p.name) like $1 OR UPPER(a.first_name || ' ' || a.last_name) like $1 
 											ORDER BY b.title DESC
     										LIMIT 100`)
 	if e != nil {
@@ -57,7 +57,7 @@ func NewBookRepo(db *sql.DB) (BookRepo, error) {
 											FROM store.books b 
 											JOIN store.publishers p ON (b.publisher_id = p.id)
 											JOIN store.authors a ON (b.author_id = a.id)
-											WHERE b.id := $1 
+											WHERE b.id = $1 
 											ORDER BY b.title DESC
     										LIMIT 1`)
 	if e != nil {
@@ -78,7 +78,9 @@ func (r *bookRepo) GetBooks(ctx context.Context, genre string, page, count int) 
 		page = 0
 	}
 
-	rows, e := r.queryBooksStmt.Query(genre, page, count)
+	offset := page * count
+
+	rows, e := r.queryBooksStmt.Query(genre, count, offset)
 	if e != nil {
 		return nil, e
 	}
@@ -110,7 +112,7 @@ func (r *bookRepo) Find(ctx context.Context, findStr string) (lst []*book.Book, 
 	lst = make([]*book.Book, 0, 100)
 
 	findStr = "%" + findStr + "%"
-	rows, e := r.queryFindBooksStmt.Query(findStr, findStr, findStr, findStr, findStr)
+	rows, e := r.queryFindBooksStmt.Query(findStr)
 	if e != nil {
 		return nil, e
 	}

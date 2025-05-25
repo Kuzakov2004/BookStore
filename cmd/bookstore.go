@@ -1,27 +1,28 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"BookStore/internal/app"
+	"context"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
-	gin.SetMode(gin.DebugMode)
-	r := gin.Default()
+	a := app.NewStoreApp()
+	if a == nil {
+		return
+	}
 
-	// load templates
-	r.LoadHTMLGlob("templates/*.tpl")
+	ctx, cancel := context.WithCancel(context.Background())
 
-	r.GET("/page1", func(c *gin.Context) {
-		c.HTML(200, "page1.tmpl", gin.H{
-			"title": "Page 1 IS HERE",
-		})
-	})
+	go func() {
+		c := make(chan os.Signal, 1) // we need to reserve to buffer size 1, so the notifier are not blocked
+		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 
-	r.GET("/page2", func(c *gin.Context) {
-		c.HTML(200, "page2.tmpl", gin.H{
-			"title": "Page 2 IS HERE",
-		})
-	})
+		<-c
+		cancel()
+	}()
 
-	r.Run("127.0.0.1:8080")
+	a.Run(ctx)
 }

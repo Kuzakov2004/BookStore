@@ -1,6 +1,7 @@
-package book
+package service
 
 import (
+	"BookStore/internal/book"
 	"context"
 	"fmt"
 	"log"
@@ -11,16 +12,17 @@ import (
 type BookService interface {
 	GetBooks(ctx context.Context, genre string, page, count int) (lst []*book.Book, total int, e error)
 	FindBooks(ctx context.Context, searchStr string) (lst []*book.Book, e error)
+	GetBook(ctx context.Context, id int64) (*book.FullInfo, error)
 }
 
 type bookService struct {
 	repo repo.BookRepo
 }
 
-func NewBookService(r repo.BookRepo) BookService {
+func NewBookService(r repo.BookRepo) (BookService, error) {
 	return &bookService{
 		repo: r,
-	}
+	}, nil
 }
 
 func (s *bookService) GetBooks(ctx context.Context, genre string, page, count int) (lst []*book.Book, total int, e error) {
