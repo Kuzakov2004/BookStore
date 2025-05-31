@@ -1,9 +1,6 @@
 package app
 
 import (
-	"BookStore/internal/book/controller"
-	"BookStore/internal/book/repo"
-	"BookStore/internal/book/service"
 	"context"
 	"database/sql"
 	"fmt"
@@ -12,9 +9,13 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/memstore"
 	"github.com/gin-gonic/gin"
-	_ "github.com/lib/pq"
 
+	"BookStore/internal/book/controller"
+	"BookStore/internal/book/repo"
+	"BookStore/internal/book/service"
 	"BookStore/internal/config"
 	"BookStore/pkg/app"
 )
@@ -103,6 +104,9 @@ func (a *storeApp) initRouter() (e error) {
 
 	gin.SetMode(a.cfg.Mode)
 	a.router = gin.Default()
+
+	store := memstore.NewStore([]byte("sdfasdfasdfasdfkjklkl dfkskasdfasdfkkasdjfaskdjfas;lkdfkkdlllll"))
+	a.router.Use(sessions.Sessions("sid", store))
 
 	a.router.SetFuncMap(template.FuncMap{
 		"each": func(n, interval int) bool {

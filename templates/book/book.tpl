@@ -15,6 +15,10 @@
 			  <td>{{ .book.Title }}</td>
 			</tr>
 			<tr>
+			  <td>Genre</td>
+			  <td>{{ .book.Genre }}</td>
+			</tr>
+			<tr>
 			  <td>Author</td>
 			  <td>{{ .book.Author }}</td>
 			</tr>
