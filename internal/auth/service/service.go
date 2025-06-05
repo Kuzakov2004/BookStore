@@ -9,7 +9,7 @@ import (
 )
 
 type AuthAdminService interface {
-	Login(ctx context.Context, user, pass string) error
+	Login(ctx context.Context, user, pass string) (int64, error)
 	Logout(ctx context.Context) error
 }
 
