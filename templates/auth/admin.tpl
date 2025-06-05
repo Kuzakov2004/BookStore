@@ -2,9 +2,9 @@
 
 	<form class="form-horizontal" method="post" action="admin/login">
 		<div class="form-group">
-			<label for="name" class="control-label col-md-4">Name</label>
+			<label for="name" class="control-label col-md-4">Login</label>
 			<div class="col-md-4">
-				<input type="text" name="name" class="form-control">
+				<input type="text" name="login" class="form-control">
 			</div>
 		</div>
 		<div class="form-group">

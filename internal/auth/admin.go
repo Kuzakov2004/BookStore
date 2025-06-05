@@ -68,15 +68,3 @@ func logout(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})
 }
-
-/*
-v := session.Get("count")
-if v == nil {
-count = 0
-} else {
-count = v.(int)
-count++
-}
-session.Set("count", count)
-session.Save()
-*/
