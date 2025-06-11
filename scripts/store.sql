@@ -5,7 +5,7 @@
 -- Dumped from database version 12.2
 -- Dumped by pg_dump version 12.2
 
--- Started on 2025-06-05 11:27:08
+-- Started on 2025-06-11 18:22:32
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -373,9 +373,7 @@ ALTER SEQUENCE store.warehouse_seq OWNED BY store.warehouses.id;
 -- Data for Name: admins; Type: TABLE DATA; Schema: store; Owner: postgres
 --
 
-COPY store.admins (id, login, salt, pass) FROM stdin;
-1	admin	MMYch597vNqIIUjf4eUAmQAllQ6mUVIlveN7Zb1UWDwnqavp5JryszSDgKgcKMkY	5437e3dfe0348a08a078ef6a95d0fbca549fea506ab83aa9fb32c6624eeda361
-\.
+INSERT INTO store.admins VALUES (1, 'admin', 'MMYch597vNqIIUjf4eUAmQAllQ6mUVIlveN7Zb1UWDwnqavp5JryszSDgKgcKMkY', '5437e3dfe0348a08a078ef6a95d0fbca549fea506ab83aa9fb32c6624eeda361');
 
 
 --
@@ -384,18 +382,16 @@ COPY store.admins (id, login, salt, pass) FROM stdin;
 -- Data for Name: authors; Type: TABLE DATA; Schema: store; Owner: postgres
 --
 
-COPY store.authors (id, first_name, last_name, middle_name, birth_date, country) FROM stdin;
-1	Александр	Пушкин	Сергеевич	1799-06-06	Россия
-2	Фёдор	Достоевский	Михайлович	1821-11-11	Россия
-3	Лев	Толстой	Николаевич	1828-09-09	Россия
-4	Эрих	Мария	Ремарк	1898-06-22	Германия
-5	Джейн	Остин	Неизвестно	1775-12-16	Англия
-6	Джордж	Оруэлл	Неизвестно	1903-06-25	Англия
-7	Габриэль	Гарсиа	Маркес	1927-03-06	Колумбия
-8	Артур	Конан	Дойл	1859-05-22	Англия
-9	Рэй	Брэдбери	Дуглас	1920-08-22	США
-10	Стивен	Кинг	Эдвин	1947-09-21	США
-\.
+INSERT INTO store.authors VALUES (1, 'Александр', 'Пушкин', 'Сергеевич', '1799-06-06', 'Россия');
+INSERT INTO store.authors VALUES (2, 'Фёдор', 'Достоевский', 'Михайлович', '1821-11-11', 'Россия');
+INSERT INTO store.authors VALUES (3, 'Лев', 'Толстой', 'Николаевич', '1828-09-09', 'Россия');
+INSERT INTO store.authors VALUES (4, 'Эрих', 'Мария', 'Ремарк', '1898-06-22', 'Германия');
+INSERT INTO store.authors VALUES (5, 'Джейн', 'Остин', 'Неизвестно', '1775-12-16', 'Англия');
+INSERT INTO store.authors VALUES (6, 'Джордж', 'Оруэлл', 'Неизвестно', '1903-06-25', 'Англия');
+INSERT INTO store.authors VALUES (7, 'Габриэль', 'Гарсиа', 'Маркес', '1927-03-06', 'Колумбия');
+INSERT INTO store.authors VALUES (8, 'Артур', 'Конан', 'Дойл', '1859-05-22', 'Англия');
+INSERT INTO store.authors VALUES (9, 'Рэй', 'Брэдбери', 'Дуглас', '1920-08-22', 'США');
+INSERT INTO store.authors VALUES (10, 'Стивен', 'Кинг', 'Эдвин', '1947-09-21', 'США');
 
 
 --
@@ -404,18 +400,16 @@ COPY store.authors (id, first_name, last_name, middle_name, birth_date, country)
 -- Data for Name: books; Type: TABLE DATA; Schema: store; Owner: postgres
 --
 
-COPY store.books (id, isbn, title, descr, price, publisher_id, author_id, publication_year, genre) FROM stdin;
-1	978-5-9925-1230-4	Евгений Онегин	\N	500.00	1	1	1833	Роман в стихах
-2	978-5-04-171716-2	Преступление и наказание	\N	600.00	2	2	1866	Роман
-3	978-5-04-115995-5	Война и мир	\N	800.00	3	3	1869	Исторический роман
-4	978-5-17-173239-4	Три товарища	\N	550.00	4	4	1936	Драма
-5	978-5-04-171591-5	Гордость и предубеждение	\N	400.00	5	5	1813	Роман
-6	978-5-17-148844-4	1984	\N	450.00	6	6	1949	Антиутопия
-7	978-5-17-163296-0	Сто лет одиночества	\N	700.00	7	7	1967	Магический реализм
-8	978-5-04-099148-8	Шерлок Холмс: Собрание рассказов	\N	650.00	8	8	1892	Детектив
-9	978-5-04-116506-2	451 градус по Фаренгейту	\N	480.00	9	9	1953	Фантастика
-10	978-5-17-112489-2	Сияние	…Проходят годы, десятилетия, но потрясающая история писателя Джека Торранса, его сынишки Дэнни, наделенного необычным даром, и поединка с темными силами, обитающими в роскошном отеле «Оверлук», по-прежнему завораживает и держит в неослабевающем напряжении читателей самого разного возраста…	550.00	10	10	1977	Хоррор
-\.
+INSERT INTO store.books VALUES (1, '978-5-9925-1230-4', 'Евгений Онегин', NULL, 500.00, 1, 1, 1833, 'Роман в стихах');
+INSERT INTO store.books VALUES (2, '978-5-04-171716-2', 'Преступление и наказание', NULL, 600.00, 2, 2, 1866, 'Роман');
+INSERT INTO store.books VALUES (3, '978-5-04-115995-5', 'Война и мир', NULL, 800.00, 3, 3, 1869, 'Исторический роман');
+INSERT INTO store.books VALUES (4, '978-5-17-173239-4', 'Три товарища', NULL, 550.00, 4, 4, 1936, 'Драма');
+INSERT INTO store.books VALUES (5, '978-5-04-171591-5', 'Гордость и предубеждение', NULL, 400.00, 5, 5, 1813, 'Роман');
+INSERT INTO store.books VALUES (6, '978-5-17-148844-4', '1984', NULL, 450.00, 6, 6, 1949, 'Антиутопия');
+INSERT INTO store.books VALUES (7, '978-5-17-163296-0', 'Сто лет одиночества', NULL, 700.00, 7, 7, 1967, 'Магический реализм');
+INSERT INTO store.books VALUES (8, '978-5-04-099148-8', 'Шерлок Холмс: Собрание рассказов', NULL, 650.00, 8, 8, 1892, 'Детектив');
+INSERT INTO store.books VALUES (9, '978-5-04-116506-2', '451 градус по Фаренгейту', NULL, 480.00, 9, 9, 1953, 'Фантастика');
+INSERT INTO store.books VALUES (10, '978-5-17-112489-2', 'Сияние', '…Проходят годы, десятилетия, но потрясающая история писателя Джека Торранса, его сынишки Дэнни, наделенного необычным даром, и поединка с темными силами, обитающими в роскошном отеле «Оверлук», по-прежнему завораживает и держит в неослабевающем напряжении читателей самого разного возраста…', 550.00, 10, 10, 1977, 'Хоррор');
 
 
 --
@@ -424,9 +418,7 @@ COPY store.books (id, isbn, title, descr, price, publisher_id, author_id, public
 -- Data for Name: clients; Type: TABLE DATA; Schema: store; Owner: postgres
 --
 
-COPY store.clients (id, first_name, last_name, middle_name, login, salt, password) FROM stdin;
-1	user	user	user	user	JUspx0w8JwwS0JrLKB8fBzcU4Vh6VZHbBVTeHS7V0PCQNBhaR22Qy0p733D9CD3s	d1ff5350aa4f00e5787a5887335bc220e9060f8651678707e4731f03e2b5ca70
-\.
+INSERT INTO store.clients VALUES (1, 'user', 'user', 'user', 'user', 'JUspx0w8JwwS0JrLKB8fBzcU4Vh6VZHbBVTeHS7V0PCQNBhaR22Qy0p733D9CD3s', 'd1ff5350aa4f00e5787a5887335bc220e9060f8651678707e4731f03e2b5ca70');
 
 
 --
@@ -435,8 +427,6 @@ COPY store.clients (id, first_name, last_name, middle_name, login, salt, passwor
 -- Data for Name: order_items; Type: TABLE DATA; Schema: store; Owner: postgres
 --
 
-COPY store.order_items (order_id, book_id, item_price, qty) FROM stdin;
-\.
 
 
 --
@@ -445,8 +435,6 @@ COPY store.order_items (order_id, book_id, item_price, qty) FROM stdin;
 -- Data for Name: orders; Type: TABLE DATA; Schema: store; Owner: postgres
 --
 
-COPY store.orders (id, client_id, amount, dt, ship_name, ship_address, ship_city, ship_zip_code, ship_country, status) FROM stdin;
-\.
 
 
 --
@@ -455,18 +443,16 @@ COPY store.orders (id, client_id, amount, dt, ship_name, ship_address, ship_city
 -- Data for Name: publishers; Type: TABLE DATA; Schema: store; Owner: postgres
 --
 
-COPY store.publishers (id, name, country, phone) FROM stdin;
-1	АСТ	Россия	+7 495 123-45-67
-2	Эксмо	Россия	+7 495 234-56-78
-3	Penguin Books	Англия	+44 20 1234 5678
-4	HarperCollins	США	+1 212 555 7890
-5	Random House	США	+1 212 555 1234
-6	Macmillan	Англия	+44 20 9876 5432
-7	Hachette	Франция	+33 1 2345 6789
-8	Simon & Schuster	США	+1 212 555 6789
-9	Alianza Editorial	Испания	+34 91 123 4567
-10	Planeta	Испания	+34 91 234 5678
-\.
+INSERT INTO store.publishers VALUES (1, 'АСТ', 'Россия', '+7 495 123-45-67');
+INSERT INTO store.publishers VALUES (2, 'Эксмо', 'Россия', '+7 495 234-56-78');
+INSERT INTO store.publishers VALUES (3, 'Penguin Books', 'Англия', '+44 20 1234 5678');
+INSERT INTO store.publishers VALUES (4, 'HarperCollins', 'США', '+1 212 555 7890');
+INSERT INTO store.publishers VALUES (5, 'Random House', 'США', '+1 212 555 1234');
+INSERT INTO store.publishers VALUES (6, 'Macmillan', 'Англия', '+44 20 9876 5432');
+INSERT INTO store.publishers VALUES (7, 'Hachette', 'Франция', '+33 1 2345 6789');
+INSERT INTO store.publishers VALUES (8, 'Simon & Schuster', 'США', '+1 212 555 6789');
+INSERT INTO store.publishers VALUES (9, 'Alianza Editorial', 'Испания', '+34 91 123 4567');
+INSERT INTO store.publishers VALUES (10, 'Planeta', 'Испания', '+34 91 234 5678');
 
 
 --
@@ -475,8 +461,6 @@ COPY store.publishers (id, name, country, phone) FROM stdin;
 -- Data for Name: warehouse_books; Type: TABLE DATA; Schema: store; Owner: postgres
 --
 
-COPY store.warehouse_books (wrhs_id, book_id, qty) FROM stdin;
-\.
 
 
 --
@@ -485,18 +469,16 @@ COPY store.warehouse_books (wrhs_id, book_id, qty) FROM stdin;
 -- Data for Name: warehouses; Type: TABLE DATA; Schema: store; Owner: postgres
 --
 
-COPY store.warehouses (id, address, capacity) FROM stdin;
-1	Москва, ул. Логистическая, д. 1	5000
-2	Санкт-Петербург, проспект Складской, д. 7	4000
-3	Екатеринбург, ул. Производственная, д. 12	3500
-4	Казань, ул. Индустриальная, д. 5	3000
-5	Новосибирск, ул. Товарная, д. 3	2500
-6	Ростов-на-Дону, ул. Грузовая, д. 8	2800
-7	Краснодар, ул. Логистическая, д. 14	2200
-8	Самара, ул. Транспортная, д. 6	2700
-9	Воронеж, ул. Хранения, д. 9	2400
-10	Уфа, ул. Доставочная, д. 11	2600
-\.
+INSERT INTO store.warehouses VALUES (1, 'Москва, ул. Логистическая, д. 1', 5000);
+INSERT INTO store.warehouses VALUES (2, 'Санкт-Петербург, проспект Складской, д. 7', 4000);
+INSERT INTO store.warehouses VALUES (3, 'Екатеринбург, ул. Производственная, д. 12', 3500);
+INSERT INTO store.warehouses VALUES (4, 'Казань, ул. Индустриальная, д. 5', 3000);
+INSERT INTO store.warehouses VALUES (5, 'Новосибирск, ул. Товарная, д. 3', 2500);
+INSERT INTO store.warehouses VALUES (6, 'Ростов-на-Дону, ул. Грузовая, д. 8', 2800);
+INSERT INTO store.warehouses VALUES (7, 'Краснодар, ул. Логистическая, д. 14', 2200);
+INSERT INTO store.warehouses VALUES (8, 'Самара, ул. Транспортная, д. 6', 2700);
+INSERT INTO store.warehouses VALUES (9, 'Воронеж, ул. Хранения, д. 9', 2400);
+INSERT INTO store.warehouses VALUES (10, 'Уфа, ул. Доставочная, д. 11', 2600);
 
 
 --
@@ -727,7 +709,7 @@ ALTER TABLE ONLY store.warehouse_books
     ADD CONSTRAINT warehouse_books_fk1 FOREIGN KEY (wrhs_id) REFERENCES store.warehouses(id);
 
 
--- Completed on 2025-06-05 11:27:09
+-- Completed on 2025-06-11 18:22:32
 
 --
 -- PostgreSQL database dump complete
