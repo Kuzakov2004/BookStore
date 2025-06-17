@@ -1,6 +1,11 @@
 package app
 
 import (
+	controller3 "BookStore/internal/admin/controller"
+	"BookStore/internal/auth"
+	controller2 "BookStore/internal/auth/controller"
+	repo2 "BookStore/internal/auth/repo"
+	service2 "BookStore/internal/auth/service"
 	"context"
 	"database/sql"
 	"fmt"
@@ -12,6 +17,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/memstore"
 	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
 
 	"BookStore/internal/book/controller"
 	"BookStore/internal/book/repo"
@@ -21,10 +27,11 @@ import (
 )
 
 type storeApp struct {
-	cfg    *config.Config
-	db     *sql.DB
-	srv    *http.Server
-	router *gin.Engine
+	cfg         *config.Config
+	db          *sql.DB
+	srv         *http.Server
+	router      *gin.Engine
+	bookService service.BookService
 }
 
 func NewStoreApp() app.Application {
@@ -60,7 +67,9 @@ func (a *storeApp) init() error {
 		a.initConfig,
 		a.initDb,
 		a.initRouter,
+		a.initAuth,
 		a.initBooks,
+		a.initAdmin,
 	}
 
 	for _, fn := range inits {
@@ -107,6 +116,7 @@ func (a *storeApp) initRouter() (e error) {
 
 	store := memstore.NewStore([]byte("sdfasdfasdfasdfkjklkl dfkskasdfasdfkkasdjfaskdjfas;lkdfkkdlllll"))
 	a.router.Use(sessions.Sessions("sid", store))
+	a.router.Use(auth.SetFlags)
 
 	a.router.SetFuncMap(template.FuncMap{
 		"each": func(n, interval int) bool {
@@ -141,12 +151,12 @@ func (a *storeApp) initBooks() error {
 		return fmt.Errorf("error create book repo: %w", e)
 	}
 
-	bs, e := service.NewBookService(br)
+	a.bookService, e = service.NewBookService(br)
 	if e != nil {
 		return fmt.Errorf("error create book service: %w", e)
 	}
 
-	bc, e := controller.NewBookController(bs)
+	bc, e := controller.NewBookController(a.bookService)
 	if e != nil {
 		return fmt.Errorf("error create book controller: %w", e)
 	}
@@ -154,6 +164,46 @@ func (a *storeApp) initBooks() error {
 	e = bc.Init(&a.router.RouterGroup)
 	if e != nil {
 		return fmt.Errorf("error init book controller: %w", e)
+	}
+
+	return nil
+}
+
+func (a *storeApp) initAuth() error {
+
+	ar, e := repo2.NewAuthRepo(a.db)
+	if e != nil {
+		return fmt.Errorf("error create auth repo: %w", e)
+	}
+
+	as, e := service2.NewAuthService(ar)
+	if e != nil {
+		return fmt.Errorf("error create auth service: %w", e)
+	}
+
+	ac, e := controller2.NewAuthController(as)
+	if e != nil {
+		return fmt.Errorf("error create auth controller: %w", e)
+	}
+
+	e = ac.Init(&a.router.RouterGroup)
+	if e != nil {
+		return fmt.Errorf("error init auth controller: %w", e)
+	}
+
+	return nil
+}
+
+func (a *storeApp) initAdmin() error {
+
+	ac, e := controller3.NewAdminController(a.bookService)
+	if e != nil {
+		return fmt.Errorf("error create admin controller: %w", e)
+	}
+
+	e = ac.Init(&a.router.RouterGroup)
+	if e != nil {
+		return fmt.Errorf("error init admin controller: %w", e)
 	}
 
 	return nil

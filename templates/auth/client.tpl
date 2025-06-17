@@ -1,6 +1,6 @@
 {{template "header" . }}
 
-	<form class="form-horizontal" method="post" action="/admin/login">
+	<form class="form-horizontal" method="post" action="/client/login">
 		<div class="form-group">
 			<label for="name" class="control-label col-md-4">Login</label>
 			<div class="col-md-4">

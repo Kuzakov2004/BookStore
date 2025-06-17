@@ -24,16 +24,23 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="index.php">IT Bookstore</a>
+          <a class="navbar-brand" href="/">IT Bookstore</a>
         </div>
 
         <!--/.navbar-collapse -->
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
-              <li><a href="/publisher/"><span class="glyphicon glyphicon-paperclip"></span>&nbsp; Publisher</a></li>
-              <li><a href="/books/"><span class="glyphicon glyphicon-book"></span>&nbsp; Books</a></li>
-              <li><a href="/contact/"><span class="glyphicon glyphicon-phone-alt"></span>&nbsp; Contact</a></li>
-              <li><a href="/cart/"><span class="glyphicon glyphicon-shopping-cart"></span>&nbsp; My Cart</a></li>
+              {{ if .isAdmin }}
+              <li><a href="/publishers"><span class="glyphicon glyphicon-paperclip"></span>&nbsp; Publishers</a></li>
+              {{ end }}
+              <li><a href="/books"><span class="glyphicon glyphicon-book"></span>&nbsp; Books</a></li>
+              <li><a href="/contact"><span class="glyphicon glyphicon-phone-alt"></span>&nbsp; Contact</a></li>
+              <li><a href="/cart"><span class="glyphicon glyphicon-shopping-cart"></span>&nbsp; My Cart</a></li>
+              {{ if .isAdmin }}
+              <li><a href="/admin/logout" class="btn btn-primary">Sign out!</a></li>
+              {{ else if .isClient }}
+              <li><a href="/client/logout" class="btn btn-primary">Sign out!</a></li>
+              {{ end }}
             </ul>
         </div>
       </div>
