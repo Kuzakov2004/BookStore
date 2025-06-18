@@ -31,9 +31,9 @@
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
               {{ if .isAdmin }}
-              <li><a href="/publishers"><span class="glyphicon glyphicon-paperclip"></span>&nbsp; Publishers</a></li>
+              <li><a href="/publisher"><span class="glyphicon glyphicon-paperclip"></span>&nbsp; Publishers</a></li>
               {{ end }}
-              <li><a href="/books"><span class="glyphicon glyphicon-book"></span>&nbsp; Books</a></li>
+              <li><a href="/book"><span class="glyphicon glyphicon-book"></span>&nbsp; Books</a></li>
               <li><a href="/contact"><span class="glyphicon glyphicon-phone-alt"></span>&nbsp; Contact</a></li>
               <li><a href="/cart"><span class="glyphicon glyphicon-shopping-cart"></span>&nbsp; My Cart</a></li>
               {{ if .isAdmin }}

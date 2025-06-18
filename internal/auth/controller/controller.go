@@ -38,7 +38,7 @@ func (c *controller) login(gc *gin.Context) {
 	session := sessions.Default(gc)
 	user := session.Get("auid")
 	if user != nil {
-		gc.Redirect(http.StatusFound, "/admin/books")
+		gc.Redirect(http.StatusFound, "/admin/book")
 		return
 	}
 
@@ -85,7 +85,7 @@ func (c *controller) postLogin(gc *gin.Context) {
 		gc.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
 		return
 	}
-	gc.Redirect(http.StatusFound, "/admin/books")
+	gc.Redirect(http.StatusFound, "/admin/book")
 }
 
 func (c *controller) cpostLogin(gc *gin.Context) {

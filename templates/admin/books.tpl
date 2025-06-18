@@ -1,7 +1,7 @@
 {{ define "admin/books.tpl" }}
 {{template "header" . }}
 
-	<p class="lead"><a href="/admin/add">Add new book</a></p>
+	<p class="lead"><a href="/admin/book/create">Add new book</a></p>
     	<table class="table" style="margin-top: 20px">
     		<tr>
     			<th>ISBN</th>
@@ -19,8 +19,8 @@
     			<td>{{ .Genre }}</td>
     			<td>{{ .Author }}</td>
     			<td>{{ .Price }}</td>
-    			<td><a href="/admin/books/{{ .ID }}/edit">Edit</a></td>
-    			<td><a href="/admin/books/{{ .ID }}/delete">Delete</a></td>
+    			<td><a href="/admin/book/{{ .ID }}/edit">Edit</a></td>
+    			<td><a href="/admin/book/{{ .ID }}/delete">Delete</a></td>
     		</tr>
     		{{ end }}
     	</table>

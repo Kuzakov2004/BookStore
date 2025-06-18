@@ -13,6 +13,7 @@ type adminRepo struct {
 
 	createStmt *sql.Stmt
 	updateStmt *sql.Stmt
+	deleteStmt *sql.Stmt
 }
 
 func NewAdminRepo(db *sql.DB) (AdminRepo, error) {
@@ -34,6 +35,13 @@ func NewAdminRepo(db *sql.DB) (AdminRepo, error) {
 	if e != nil {
 		return nil, e
 	}
+
+	r.deleteStmt, e = db.Prepare(`
+		delete from  store.books where id=$1`)
+	if e != nil {
+		return nil, e
+	}
+
 	return r, nil
 }
 
@@ -42,7 +50,7 @@ func (r *adminRepo) CreateBook(ctx context.Context, info *book.FullInfo) (int64,
 	var id int64
 	//isbn, title, descr, price, publisher_id, author_id, publication_year, genre
 	if e := r.createStmt.QueryRow(info.ISBN, info.Title, info.Descr, info.Price, 1, 1, info.PublicationYear, info.Genre).Scan(&id); e != nil {
-		log.Println("Login", "Error update book [", e, "]")
+		log.Println("Error update book [", e, "]")
 		return 0, fmt.Errorf("error update book %w", e)
 	}
 	return id, nil
@@ -52,8 +60,18 @@ func (r *adminRepo) UpdateBook(ctx context.Context, info *book.FullInfo) error {
 
 	//isbn, title, descr, price, publisher_id, author_id, publication_year, genre
 	if _, e := r.updateStmt.Exec(info.ISBN, info.Title, info.Descr, info.Price, 1, 1, info.PublicationYear, info.Genre, info.ID); e != nil {
-		log.Println("Login", "Error update book [", e, "]")
+		log.Println("Error update book [", e, "]")
 		return fmt.Errorf("error update book %w", e)
+	}
+	return nil
+}
+
+func (r *adminRepo) DeleteBook(ctx context.Context, id int64) error {
+
+	//id
+	if _, e := r.deleteStmt.Exec(id); e != nil {
+		log.Println("Error delete book [", e, "]")
+		return fmt.Errorf("error delete book %w", e)
 	}
 	return nil
 }

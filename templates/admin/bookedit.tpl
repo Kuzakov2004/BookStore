@@ -1,12 +1,25 @@
 {{ define "admin/bookedit.tpl" }}
 {{template "header" . }}
 
-	<form method="post" action="/admin/books/{{ .book.ID }}/edit" enctype="multipart/form-data">
+    <span>
+    {{ .err }}
+    </span>
+    <br>
+    {{ if .isCreate }}
+    <form method="post" action="/admin/book/create" enctype="multipart/form-data">
+            <table class="table">
+                <tr>
+                    <th>ISBN</th>
+                    <td><input type="text" name="isbn" value="{{ .book.ISBN }}"></td>
+                </tr>
+    {{ else }}
+	<form method="post" action="/admin/book/{{ .book.ID }}/edit" enctype="multipart/form-data">
         <table class="table">
             <tr>
                 <th>ISBN</th>
                 <td><input type="text" name="isbn" value="{{ .book.ISBN }}" readOnly="true"></td>
             </tr>
+    {{ end }}
             <tr>
                 <th>Title</th>
                 <td><input type="text" name="title" value="{{ .book.Title }}" required></td>
@@ -27,9 +40,17 @@
                 <th>Price</th>
                 <td><input type="text" name="price" value="{{ .book.Price }}" required></td>
             </tr>
+            <tr>
+                <th>Publication Year</th>
+                <td><input type="text" name="publication_year" value="{{ .book.PublicationYear }}" required></td>
+            </tr>
+            <tr>
+                <th>Genre</th>
+                <td><input type="text" name="genre" value="{{ .book.Genre }}" required></td>
+            </tr>
         </table>
         <input type="submit" name="save_change" value="Change" class="btn btn-primary">
-        <a href="/admin/books" class="btn btn-default">Cancel</a>
+        <a href="/admin/book" class="btn btn-default">Cancel</a>
     </form>
     <br/>
 

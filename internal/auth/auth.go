@@ -31,7 +31,7 @@ func ClientAuthRequired(c *gin.Context) {
 	// Try to get the user from the session
 	if user := session.Get("cuid"); user == nil {
 		// No user in session, abort the request
-		c.Redirect(http.StatusFound, "/admin/login")
+		c.Redirect(http.StatusFound, "/client/login")
 		return
 	}
 

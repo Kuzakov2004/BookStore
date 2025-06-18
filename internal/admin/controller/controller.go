@@ -1,30 +1,46 @@
 package controller
 
 import (
+	"BookStore/internal/admin/service"
 	"BookStore/internal/auth"
+	"BookStore/internal/book"
 	service2 "BookStore/internal/book/service"
+	"BookStore/internal/config"
 	controller2 "BookStore/pkg/controller"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
+	"net/http"
+	"path"
 	"strconv"
 )
 
 type controller struct {
-	bookSrvc service2.BookService
+	cfg       *config.Config
+	adminSrvc service.AdminService
+	bookSrvc  service2.BookService
 }
 
-func NewAdminController(s service2.BookService) (controller2.HttpController, error) {
+func NewAdminController(cfg *config.Config, s service.AdminService, bs service2.BookService) (controller2.HttpController, error) {
 	return &controller{
-		bookSrvc: s,
+		cfg:       cfg,
+		adminSrvc: s,
+		bookSrvc:  bs,
 	}, nil
 }
 
 func (c *controller) Init(r *gin.RouterGroup) error {
 	bg := r.Group("/admin")
 	bg.Use(auth.AdminAuthRequired)
-	bg.GET("/books", c.books)
-	bg.GET("/books/:id/edit", c.bookEdit)
-	bg.POST("/books/:id/edit", c.postBookEdit)
+	bg.GET("/book", c.books)
+
+	bg.GET("/book/:id/edit", c.bookEdit)
+	bg.POST("/book/:id/edit", c.postBookEdit)
+
+	bg.GET("/book/create", c.bookCreate)
+	bg.POST("/book/create", c.postBookCreate)
+
+	bg.GET("/book/:id/delete", c.bookDelete)
 
 	return nil
 }
@@ -55,23 +71,125 @@ func (c *controller) bookEdit(gc *gin.Context) {
 	}
 
 	gc.HTML(200, "admin/bookedit.tpl", gin.H{
-		"title": book.Title,
-		"book":  book,
+		"title":    book.Title,
+		"book":     book,
+		"isCreate": false,
+	})
+}
+
+func (c *controller) bookCreate(gc *gin.Context) {
+
+	gc.HTML(200, "admin/bookedit.tpl", gin.H{
+		"title":    "Новая книга",
+		"book":     book.FullInfo{},
+		"isCreate": true,
 	})
 }
 
 func (c *controller) postBookEdit(gc *gin.Context) {
 
-	books, cnt, e := c.bookSrvc.GetBooks(gc.Request.Context(), "", 0, 50)
+	id, _ := strconv.ParseInt(gc.Param("id"), 10, 64)
+	var bookInfo book.FullInfo
+	bookInfo.ID = id
 
-	if e != nil {
-		log.Println("Error get books", e)
+	if e := gc.ShouldBind(&bookInfo); e != nil {
+		gc.HTML(200, "admin/bookedit.tpl", gin.H{
+			"title": "Новая книга",
+			"book":  bookInfo,
+			"err":   e.Error(),
+		})
+		return
 	}
 
-	gc.HTML(200, "admin/books.tpl", gin.H{
-		"title":   "Список книг",
-		"books":   books,
-		"cnt":     cnt,
-		"isAdmin": gc.Keys["isAdmin"],
-	})
+	e := c.adminSrvc.UpdateBook(gc.Request.Context(), &bookInfo)
+
+	if e != nil {
+		log.Println("Error update book", e)
+		gc.HTML(200, "admin/bookedit.tpl", gin.H{
+			"title": "Новая книга",
+			"book":  bookInfo,
+			"err":   e.Error(),
+		})
+		return
+	}
+
+	file, e := gc.FormFile("image")
+	if file != nil && (file.Header.Get("Content-Type") != "image/jpeg" && file.Header.Get("Content-Type") != "image/png") {
+		e = fmt.Errorf("Invalid image mime type %s", file.Header.Get("Content-Type"))
+		gc.HTML(200, "admin/bookedit.tpl", gin.H{
+			"title": "Новая книга",
+			"book":  bookInfo,
+			"err":   e.Error(),
+		})
+		return
+	}
+
+	if file != nil {
+		filename := path.Join(c.cfg.ImagePath, strconv.FormatInt(id, 10)+".jpg")
+		if err := gc.SaveUploadedFile(file, filename); err != nil {
+			log.Println("upload file err: ", err.Error())
+		}
+	}
+
+	gc.Redirect(http.StatusFound, "/admin/book")
+}
+
+func (c *controller) postBookCreate(gc *gin.Context) {
+
+	var bookInfo book.FullInfo
+
+	if e := gc.ShouldBind(&bookInfo); e != nil {
+		gc.HTML(200, "admin/bookedit.tpl", gin.H{
+			"title": "Новая книга",
+			"book":  bookInfo,
+			"err":   e.Error(),
+		})
+		return
+	}
+
+	id, e := c.adminSrvc.CreateBook(gc.Request.Context(), &bookInfo)
+
+	if e != nil {
+		log.Println("Error create book", e)
+		gc.HTML(200, "admin/bookedit.tpl", gin.H{
+			"title": "Новая книга",
+			"book":  bookInfo,
+			"err":   e.Error(),
+		})
+		return
+	}
+
+	file, e := gc.FormFile("image")
+
+	if file != nil && (file.Header.Get("Content-Type") != "image/jpeg" && file.Header.Get("Content-Type") != "image/png") {
+		e = fmt.Errorf("Invalid image mime type %s", file.Header.Get("Content-Type"))
+		gc.HTML(200, "admin/bookedit.tpl", gin.H{
+			"title": "Новая книга",
+			"book":  bookInfo,
+			"err":   e.Error(),
+		})
+		return
+	}
+
+	if file != nil {
+		filename := path.Join(c.cfg.ImagePath, strconv.FormatInt(id, 10)+".jpg")
+		if err := gc.SaveUploadedFile(file, filename); err != nil {
+			log.Println("upload file err: ", err.Error())
+		}
+	}
+
+	gc.Redirect(http.StatusFound, "/admin/book")
+}
+
+func (c *controller) bookDelete(gc *gin.Context) {
+
+	id, _ := strconv.ParseInt(gc.Param("id"), 10, 64)
+
+	e := c.adminSrvc.DeleteBook(gc.Request.Context(), id)
+
+	if e != nil {
+		log.Println("Error delete book", e)
+	}
+
+	gc.Redirect(http.StatusFound, "/admin/book")
 }

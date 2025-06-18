@@ -2,6 +2,8 @@ package app
 
 import (
 	controller3 "BookStore/internal/admin/controller"
+	repo3 "BookStore/internal/admin/repo"
+	service3 "BookStore/internal/admin/service"
 	"BookStore/internal/auth"
 	controller2 "BookStore/internal/auth/controller"
 	repo2 "BookStore/internal/auth/repo"
@@ -196,7 +198,17 @@ func (a *storeApp) initAuth() error {
 
 func (a *storeApp) initAdmin() error {
 
-	ac, e := controller3.NewAdminController(a.bookService)
+	ar, e := repo3.NewAdminRepo(a.db)
+	if e != nil {
+		return fmt.Errorf("error create admin controller: %w", e)
+	}
+
+	as, e := service3.NewAdminService(ar)
+	if e != nil {
+		return fmt.Errorf("error create admin controller: %w", e)
+	}
+
+	ac, e := controller3.NewAdminController(a.cfg, as, a.bookService)
 	if e != nil {
 		return fmt.Errorf("error create admin controller: %w", e)
 	}
