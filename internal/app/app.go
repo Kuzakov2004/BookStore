@@ -8,6 +8,9 @@ import (
 	controller2 "BookStore/internal/auth/controller"
 	repo2 "BookStore/internal/auth/repo"
 	service2 "BookStore/internal/auth/service"
+	controller4 "BookStore/internal/publisher/controller"
+	repo4 "BookStore/internal/publisher/repo"
+	service4 "BookStore/internal/publisher/service"
 	"context"
 	"database/sql"
 	"fmt"
@@ -29,11 +32,12 @@ import (
 )
 
 type storeApp struct {
-	cfg         *config.Config
-	db          *sql.DB
-	srv         *http.Server
-	router      *gin.Engine
-	bookService service.BookService
+	cfg              *config.Config
+	db               *sql.DB
+	srv              *http.Server
+	router           *gin.Engine
+	bookService      service.BookService
+	publisherService service4.PublisherService
 }
 
 func NewStoreApp() app.Application {
@@ -71,6 +75,7 @@ func (a *storeApp) init() error {
 		a.initRouter,
 		a.initAuth,
 		a.initBooks,
+		a.initPublishers,
 		a.initAdmin,
 	}
 
@@ -171,6 +176,31 @@ func (a *storeApp) initBooks() error {
 	return nil
 }
 
+func (a *storeApp) initPublishers() error {
+
+	pr, e := repo4.NewPublisherRepo(a.db)
+	if e != nil {
+		return fmt.Errorf("error create publisher repo: %w", e)
+	}
+
+	a.publisherService, e = service4.NewPublisherService(pr)
+	if e != nil {
+		return fmt.Errorf("error create publisher service: %w", e)
+	}
+
+	pc, e := controller4.NewPublisherController(a.publisherService)
+	if e != nil {
+		return fmt.Errorf("error create publisher controller: %w", e)
+	}
+
+	e = pc.Init(&a.router.RouterGroup)
+	if e != nil {
+		return fmt.Errorf("error init publisher controller: %w", e)
+	}
+
+	return nil
+}
+
 func (a *storeApp) initAuth() error {
 
 	ar, e := repo2.NewAuthRepo(a.db)
@@ -208,7 +238,7 @@ func (a *storeApp) initAdmin() error {
 		return fmt.Errorf("error create admin controller: %w", e)
 	}
 
-	ac, e := controller3.NewAdminController(a.cfg, as, a.bookService)
+	ac, e := controller3.NewAdminController(a.cfg, as, a.bookService, a.publisherService)
 	if e != nil {
 		return fmt.Errorf("error create admin controller: %w", e)
 	}

@@ -1,6 +1,5 @@
 {{ define "admin/books.tpl" }}
-{{template "header" . }}
-
+{{template "adminheader" . }}
 	<p class="lead"><a href="/admin/book/create">Add new book</a></p>
     	<table class="table" style="margin-top: 20px">
     		<tr>

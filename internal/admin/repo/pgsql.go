@@ -2,6 +2,7 @@ package repo
 
 import (
 	"BookStore/internal/book"
+	"BookStore/internal/publisher"
 	"context"
 	"database/sql"
 	"fmt"
@@ -14,6 +15,10 @@ type adminRepo struct {
 	createStmt *sql.Stmt
 	updateStmt *sql.Stmt
 	deleteStmt *sql.Stmt
+
+	createPublisherStmt *sql.Stmt
+	updatePublisherStmt *sql.Stmt
+	deletePublisherStmt *sql.Stmt
 }
 
 func NewAdminRepo(db *sql.DB) (AdminRepo, error) {
@@ -38,6 +43,27 @@ func NewAdminRepo(db *sql.DB) (AdminRepo, error) {
 
 	r.deleteStmt, e = db.Prepare(`
 		delete from  store.books where id=$1`)
+	if e != nil {
+		return nil, e
+	}
+
+	r.createPublisherStmt, e = db.Prepare(`
+		insert into store.publishers (name, country, phone)
+		values ($1, $2, $3)
+		returning id`)
+	if e != nil {
+		return nil, e
+	}
+
+	r.updatePublisherStmt, e = db.Prepare(`
+		update store.publishers set name=$1, country=$2, phone=$3
+		where id=$4`)
+	if e != nil {
+		return nil, e
+	}
+
+	r.deletePublisherStmt, e = db.Prepare(`
+		delete from  store.publishers where id=$1`)
 	if e != nil {
 		return nil, e
 	}
@@ -72,6 +98,30 @@ func (r *adminRepo) DeleteBook(ctx context.Context, id int64) error {
 	if _, e := r.deleteStmt.Exec(id); e != nil {
 		log.Println("Error delete book [", e, "]")
 		return fmt.Errorf("error delete book %w", e)
+	}
+	return nil
+}
+
+func (r *adminRepo) UpdatePublisher(ctx context.Context, p *publisher.Publisher) error {
+	if _, e := r.updatePublisherStmt.Exec(p.Name, p.Country, p.Phone, p.ID); e != nil {
+		log.Println("Error update publisher [", e, "]")
+		return fmt.Errorf("error update publisher %w", e)
+	}
+	return nil
+}
+func (r *adminRepo) CreatePublisher(ctx context.Context, p *publisher.Publisher) (int64, error) {
+	var id int64
+
+	if e := r.createPublisherStmt.QueryRow(p.Name, p.Country, p.Phone).Scan(&id); e != nil {
+		log.Println("Error update publisher [", e, "]")
+		return 0, fmt.Errorf("error update publisher %w", e)
+	}
+	return id, nil
+}
+func (r *adminRepo) DeletePublisher(ctx context.Context, id int64) error {
+	if _, e := r.deletePublisherStmt.Exec(id); e != nil {
+		log.Println("Error delete publisher [", e, "]")
+		return fmt.Errorf("error delete publisher %w", e)
 	}
 	return nil
 }

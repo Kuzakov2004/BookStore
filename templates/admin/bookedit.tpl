@@ -1,5 +1,5 @@
 {{ define "admin/bookedit.tpl" }}
-{{template "header" . }}
+{{template "adminheader" . }}
 
     <span>
     {{ .err }}

@@ -6,7 +6,7 @@
             	<a href="/" target="_blank">IT Book store</a>
         	</div>
         	<div class="text-muted pull-right">
-          		<a href="/admin/books">Kuzakov</a>
+          		<a href="/admin/book">Kuzakov</a>
         	</div>
       	</footer>
     </div> <!-- /container -->
