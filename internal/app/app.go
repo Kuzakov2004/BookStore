@@ -8,12 +8,15 @@ import (
 	controller2 "BookStore/internal/auth/controller"
 	repo2 "BookStore/internal/auth/repo"
 	service2 "BookStore/internal/auth/service"
+	controller6 "BookStore/internal/order/controller"
+	repo6 "BookStore/internal/order/repo"
+	service6 "BookStore/internal/order/service"
 	controller4 "BookStore/internal/publisher/controller"
 	repo4 "BookStore/internal/publisher/repo"
 	service4 "BookStore/internal/publisher/service"
+	controller5 "BookStore/internal/warehouse/controller"
 	repo5 "BookStore/internal/warehouse/repo"
 	service5 "BookStore/internal/warehouse/service"
-	controller5 "BookStore/internal/warehouse/controller"
 	"context"
 	"database/sql"
 	"fmt"
@@ -81,6 +84,7 @@ func (a *storeApp) init() error {
 		a.initBooks,
 		a.initPublishers,
 		a.initWarehouse,
+		a.initOrders,
 		a.initAdmin,
 	}
 
@@ -230,32 +234,6 @@ func (a *storeApp) initAuth() error {
 
 	return nil
 }
-
-func (a *storeApp) initAdmin() error {
-
-	ar, e := repo3.NewAdminRepo(a.db)
-	if e != nil {
-		return fmt.Errorf("error create admin controller: %w", e)
-	}
-
-	as, e := service3.NewAdminService(ar)
-	if e != nil {
-		return fmt.Errorf("error create admin controller: %w", e)
-	}
-
-	ac, e := controller3.NewAdminController(a.cfg, as, a.bookService, a.publisherService, a.warehouseService)
-	if e != nil {
-		return fmt.Errorf("error create admin controller: %w", e)
-	}
-
-	e = ac.Init(&a.router.RouterGroup)
-	if e != nil {
-		return fmt.Errorf("error init admin controller: %w", e)
-	}
-
-	return nil
-}
-
 func (a *storeApp) initWarehouse() error {
 
 	wr, e := repo5.NewWarehouseRepo(a.db)
@@ -276,6 +254,54 @@ func (a *storeApp) initWarehouse() error {
 	e = wc.Init(&a.router.RouterGroup)
 	if e != nil {
 		return fmt.Errorf("error init warehouse controller: %w", e)
+	}
+
+	return nil
+}
+func (a *storeApp) initOrders() error {
+
+	or, e := repo6.NewOrderRepo(a.db)
+	if e != nil {
+		return fmt.Errorf("error create order repo: %w", e)
+	}
+
+	os, e := service6.NewOrderService(or)
+	if e != nil {
+		return fmt.Errorf("error create order service: %w", e)
+	}
+
+	oc, e := controller6.NewOrderController(os)
+	if e != nil {
+		return fmt.Errorf("error create order controller: %w", e)
+	}
+
+	e = oc.Init(&a.router.RouterGroup)
+	if e != nil {
+		return fmt.Errorf("error init order controller: %w", e)
+	}
+
+	return nil
+}
+func (a *storeApp) initAdmin() error {
+
+	ar, e := repo3.NewAdminRepo(a.db)
+	if e != nil {
+		return fmt.Errorf("error create admin controller: %w", e)
+	}
+
+	as, e := service3.NewAdminService(ar)
+	if e != nil {
+		return fmt.Errorf("error create admin controller: %w", e)
+	}
+
+	ac, e := controller3.NewAdminController(a.cfg, as, a.bookService, a.publisherService, a.warehouseService)
+	if e != nil {
+		return fmt.Errorf("error create admin controller: %w", e)
+	}
+
+	e = ac.Init(&a.router.RouterGroup)
+	if e != nil {
+		return fmt.Errorf("error init admin controller: %w", e)
 	}
 
 	return nil
