@@ -8,13 +8,15 @@ import (
 	"BookStore/internal/config"
 	"BookStore/internal/publisher"
 	service3 "BookStore/internal/publisher/service"
+	service4  "BookStore/internal/warehouse/service"
 	controller2 "BookStore/pkg/controller"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"path"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 type controller struct {
@@ -22,14 +24,16 @@ type controller struct {
 	adminSrvc     service.AdminService
 	bookSrvc      service2.BookService
 	publisherSrvc service3.PublisherService
+	warehouseSrvs service4.WarehouseService
 }
 
-func NewAdminController(cfg *config.Config, s service.AdminService, bs service2.BookService, ps service3.PublisherService) (controller2.HttpController, error) {
+func NewAdminController(cfg *config.Config, s service.AdminService, bs service2.BookService, ps service3.PublisherService, ws service4.WarehouseService) (controller2.HttpController, error) {
 	return &controller{
 		cfg:           cfg,
 		adminSrvc:     s,
 		bookSrvc:      bs,
 		publisherSrvc: ps,
+		warehouseSrvs: ws,
 	}, nil
 }
 
@@ -55,6 +59,8 @@ func (c *controller) Init(r *gin.RouterGroup) error {
 	bg.POST("/publisher/create", c.postPublisherCreate)
 
 	bg.GET("/publisher/:id/delete", c.publisherDelete)
+
+	bg.GET("/store", c.warehouses)
 
 	return nil
 }
@@ -318,4 +324,22 @@ func (c *controller) publisherDelete(gc *gin.Context) {
 	}
 
 	gc.Redirect(http.StatusFound, "/admin/publisher")
+}
+
+// warehouses
+
+func (c *controller) warehouses(gc *gin.Context) {
+
+	warehouses, cnt, e := c.warehouseSrvs.GetWarehouses(gc.Request.Context(), 0, 50)
+
+	if e != nil {
+		log.Println("Error get warehouses", e)
+	}
+
+	gc.HTML(200, "admin/warehouses.tpl", gin.H{
+		"title":      "Список складов",
+		"warehouses": warehouses,
+		"cnt":        cnt,
+		"isAdmin":    gc.Keys["isAdmin"],
+	})
 }

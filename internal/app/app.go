@@ -11,6 +11,9 @@ import (
 	controller4 "BookStore/internal/publisher/controller"
 	repo4 "BookStore/internal/publisher/repo"
 	service4 "BookStore/internal/publisher/service"
+	repo5 "BookStore/internal/warehouse/repo"
+	service5 "BookStore/internal/warehouse/service"
+	controller5 "BookStore/internal/warehouse/controller"
 	"context"
 	"database/sql"
 	"fmt"
@@ -38,6 +41,7 @@ type storeApp struct {
 	router           *gin.Engine
 	bookService      service.BookService
 	publisherService service4.PublisherService
+	warehouseService service5.WarehouseService
 }
 
 func NewStoreApp() app.Application {
@@ -76,6 +80,7 @@ func (a *storeApp) init() error {
 		a.initAuth,
 		a.initBooks,
 		a.initPublishers,
+		a.initWarehouse,
 		a.initAdmin,
 	}
 
@@ -238,7 +243,7 @@ func (a *storeApp) initAdmin() error {
 		return fmt.Errorf("error create admin controller: %w", e)
 	}
 
-	ac, e := controller3.NewAdminController(a.cfg, as, a.bookService, a.publisherService)
+	ac, e := controller3.NewAdminController(a.cfg, as, a.bookService, a.publisherService, a.warehouseService)
 	if e != nil {
 		return fmt.Errorf("error create admin controller: %w", e)
 	}
@@ -246,6 +251,31 @@ func (a *storeApp) initAdmin() error {
 	e = ac.Init(&a.router.RouterGroup)
 	if e != nil {
 		return fmt.Errorf("error init admin controller: %w", e)
+	}
+
+	return nil
+}
+
+func (a *storeApp) initWarehouse() error {
+
+	wr, e := repo5.NewWarehouseRepo(a.db)
+	if e != nil {
+		return fmt.Errorf("error create warehouse repo: %w", e)
+	}
+
+	a.warehouseService, e = service5.NewWarehouseService(wr)
+	if e != nil {
+		return fmt.Errorf("error create warehouse service: %w", e)
+	}
+
+	wc, e := controller5.NewWarehouseController(a.warehouseService)
+	if e != nil {
+		return fmt.Errorf("error create warehouse controller: %w", e)
+	}
+
+	e = wc.Init(&a.router.RouterGroup)
+	if e != nil {
+		return fmt.Errorf("error init warehouse controller: %w", e)
 	}
 
 	return nil

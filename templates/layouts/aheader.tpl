@@ -34,7 +34,7 @@
               <li><a href="/admin/publisher"><span class="glyphicon glyphicon-paperclip"></span>&nbsp; Publishers</a></li>
               <li><a href="/admin/book"><span class="glyphicon glyphicon-book"></span>&nbsp; Books</a></li>
               <li><a href="/admin/order"><span class="glyphicon glyphicon-shopping-cart"></span>&nbsp; Orders</a></li>
-              <li><a href="/admin/store"><span class="glyphicon glyphicon-home"></span>&nbsp; Stores</a></li>
+              <li><a href="/admin/warehouse"><span class="glyphicon glyphicon-home"></span>&nbsp; Warehouses</a></li>
               <li><a href="/admin/contact"><span class="glyphicon glyphicon-phone-alt"></span>&nbsp; Contact</a></li>
               <li><a href="/admin/logout" class="btn btn-primary">Sign out!</a></li>
            </ul>
