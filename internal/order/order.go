@@ -1,11 +1,11 @@
 package order
 
 type Ship struct {
-	Name    string `json:"name"`
-	Address string `json:"address"`
-	City    string `json:"city"`
-	ZipCode string `json:"zip_code"`
-	Country string `json:"country"`
+	Name    string `form:"name" json:"name" binding:"required"`
+	Address string `form:"address" json:"address" binding:"required"`
+	City    string `form:"city" json:"city" binding:"required"`
+	ZipCode string `form:"zip" json:"zip_code" binding:"required"`
+	Country string `form:"country" json:"country" `
 }
 type Order struct {
 	ID          int64   `json:"id"`
@@ -16,7 +16,7 @@ type Order struct {
 	Dt          string  `json:"dt"`
 	Qty         int     `json:"qty"`
 	Ship
-	Status byte `json:"status"`
+	Status string `json:"status"`
 }
 
 type OrderItem struct {
@@ -26,6 +26,7 @@ type OrderItem struct {
 	BookAuthor string  `json:"book_author"`
 	Price      float64 `json:"price"`
 	Qty        int     `json:"qty"`
+	InStock    int     `json:"in_stock"`
 }
 
 type Client struct {

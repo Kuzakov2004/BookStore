@@ -35,6 +35,7 @@
     		{{ end }}
     	</table>
     	<button class="btn btn-default" type="submit">Select</button>
+    	<a class="btn btn-default" href="/admin/order/{{ .orderID }}/edit#client">Cancel</a>
     	</form>
 
 

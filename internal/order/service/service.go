@@ -1,6 +1,7 @@
 package service
 
 import (
+	"BookStore/internal/book"
 	"BookStore/internal/order"
 	repo2 "BookStore/internal/order/repo"
 	"context"
@@ -13,8 +14,14 @@ type OrderService interface {
 	GetOrder(ctx context.Context, id int64) (*order.OrderDetail, error)
 	SetOrderClient(ctx context.Context, orderID int64, clientId int64) error
 	CreateOrder(ctx context.Context) (int64, error)
+	SaveShip(ctx context.Context, orderId int64, ship *order.Ship) error
+	AddBooks(ctx context.Context, orderId int64, books []int64) error
+	SaveBookQty(ctx context.Context, orderId int64, books []int64, qty []int) error
+	Pay(ctx context.Context, orderId int64, books []int64, qty []int) error
+	Send(ctx context.Context, orderId int64) error
 
 	FindClient(ctx context.Context, str string) (lst []*order.Client, e error)
+	FindBook(ctx context.Context, orderId int64, page, count int) (lst []*book.Book, e error)
 }
 
 type orderService struct {
@@ -64,6 +71,16 @@ func (s *orderService) FindClient(ctx context.Context, str string) (lst []*order
 	return lst, nil
 }
 
+func (s *orderService) FindBook(ctx context.Context, orderId int64, page, count int) (lst []*book.Book, e error) {
+	lst, e = s.repo.FindBook(ctx, orderId, page, count)
+	if e != nil {
+		log.Println("FindBook", "Error find books", " [", e, "]")
+		return nil, fmt.Errorf("error find books [%w]", e)
+	}
+
+	return lst, nil
+}
+
 func (s *orderService) CreateOrder(ctx context.Context) (int64, error) {
 	id, e := s.repo.CreateOrder(ctx)
 	if e != nil {
@@ -74,6 +91,62 @@ func (s *orderService) CreateOrder(ctx context.Context) (int64, error) {
 	return id, nil
 }
 
-func (s *orderService) SetOrderClient(ctx context.Context, orderID int64, clientId int64) error {
+func (s *orderService) SetOrderClient(ctx context.Context, orderId int64, clientId int64) error {
+	e := s.repo.SetOrderClient(ctx, orderId, clientId)
+	if e != nil {
+		log.Println("CreateOrder", "Error create order", " [", e, "]")
+		return fmt.Errorf("error create order [%w]", e)
+	}
+
+	return nil
+}
+
+func (s *orderService) SaveShip(ctx context.Context, orderId int64, ship *order.Ship) error {
+	e := s.repo.SaveShip(ctx, orderId, ship)
+	if e != nil {
+		log.Println("SaveShip", "Error save ship", " [", e, "]")
+		return fmt.Errorf("error save ship [%w]", e)
+	}
+
+	return nil
+}
+
+func (s *orderService) AddBooks(ctx context.Context, orderId int64, books []int64) error {
+	e := s.repo.AddBooks(ctx, orderId, books)
+	if e != nil {
+		log.Println("AddBooks", "Error add books", " [", e, "]")
+		return fmt.Errorf("error add books [%w]", e)
+	}
+
+	return nil
+}
+
+func (s *orderService) SaveBookQty(ctx context.Context, orderId int64, books []int64, qty []int) error {
+	e := s.repo.SaveBookQty(ctx, orderId, books, qty)
+	if e != nil {
+		log.Println("SaveBookQty", "Error save book qty", " [", e, "]")
+		return fmt.Errorf("error save book qty [%w]", e)
+	}
+
+	return nil
+}
+
+func (s *orderService) Pay(ctx context.Context, orderId int64, books []int64, qty []int) error {
+	e := s.repo.Pay(ctx, orderId, books, qty)
+	if e != nil {
+		log.Println("SaveBookQty", "Error pay", " [", e, "]")
+		return fmt.Errorf("error pay [%w]", e)
+	}
+
+	return nil
+}
+
+func (s *orderService) Send(ctx context.Context, orderId int64) error {
+	e := s.repo.Send(ctx, orderId)
+	if e != nil {
+		log.Println("Send", "Error send", " [", e, "]")
+		return fmt.Errorf("error send [%w]", e)
+	}
+
 	return nil
 }

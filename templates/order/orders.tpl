@@ -22,7 +22,7 @@
       </div>
   </nav>
 </div>
-
+    {{$n := .activeActive}}
 	<table class="table" style="margin-top: 20px">
         <tr>
             <th>Dt</th>
@@ -32,7 +32,9 @@
             <th>Qty</th>
             <th>Ship address</th>
             <th>&nbsp;</th>
+            {{ if eq $n "active" }}
             <th>&nbsp;</th>
+            {{ end }}
         </tr>
         {{ range $index, $value := .orders }}
         <tr>
@@ -43,7 +45,9 @@
             <td>{{ .Qty }}</td>
             <td>{{ .Ship.Address }}</td>
             <td><a href="/admin/order/{{ .ID }}">Detail</a></td>
+            {{ if eq $n "active" }}
             <td><a href="/admin/order/{{ .ID }}/edit">Edit</a></td>
+            {{ end }}
         </tr>
         {{ end }}
     </table>

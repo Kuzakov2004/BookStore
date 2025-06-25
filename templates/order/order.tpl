@@ -48,7 +48,12 @@
           </table>
        	</div>
       </div>
-
+        {{ if eq .order.Status "N" }}
+            <a class="btn btn-primary" href="/admin/order/{{ .order.ID }}/pay">Pay</a>
+        {{ end }}
+        {{ if eq .order.Status "P" }}
+            <a class="btn btn-primary"  href="/admin/order/{{ .order.ID }}/send">Send</a>
+        {{ end }}
       <div class="row">
           <div class="col-md-6">
             <h4>Items</h4>

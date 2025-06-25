@@ -13,7 +13,13 @@
 				<input type="password" name="pass" class="form-control">
 			</div>
 		</div>
-		<input type="submit" name="submit" class="btn btn-primary">
+		<div class="form-group">
+		    <div class="col-md-4">
+		    </div>
+            <div class="col-md-4">
+                <input type="submit" name="submit" class="btn btn-primary" value="Войти">
+			</div>
+		</div>
 	</form>
 
 {{template "footer" . }}
