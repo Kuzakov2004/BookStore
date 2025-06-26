@@ -15,7 +15,7 @@
                 <a class="nav-link" href="/admin/order/?status=P">Payed</a>
               </li>
               <li class="nav-item  {{ .activeCompleted }}">
-                <a class="nav-link" href="/admin/order/?status=C">Completed</a>
+                <a class="nav-link" href="/admin/order/?status=S">Completed</a>
               </li>
             </ul>
         </div>

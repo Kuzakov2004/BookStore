@@ -45,6 +45,7 @@ func (c *controller) Init(r *gin.RouterGroup) error {
 	og.GET("/:id/send", c.send)
 
 	og.GET("/:id/edit", c.editOrder)
+	og.GET("/:id/delbook", c.delBookFromOrder)
 
 	return nil
 }
@@ -68,7 +69,7 @@ func (c *controller) orders(gc *gin.Context) {
 	if status == "P" {
 		activePayed = "active"
 	}
-	if status == "C" {
+	if status == "S" {
 		activeCompleted = "active"
 	}
 
@@ -291,5 +292,17 @@ func (c *controller) send(gc *gin.Context) {
 	if e != nil {
 		log.Println("Error set ship", e)
 	}
-	gc.Redirect(http.StatusFound, "/admin/order/"+gc.Param("id"))
+	gc.Redirect(http.StatusFound, "/admin/order?status=S")
+}
+
+func (c *controller) delBookFromOrder(gc *gin.Context) {
+
+	orderId, _ := strconv.ParseInt(gc.Param("id"), 10, 64)
+	bookId, _ := strconv.ParseInt(gc.Query("book"), 10, 64)
+
+	e := c.srvc.DelBookFromOrder(gc.Request.Context(), orderId, bookId)
+	if e != nil {
+		log.Println("Error del book from order", e)
+	}
+	gc.Redirect(http.StatusFound, "/admin/order/"+gc.Param("id")+"/edit#books")
 }

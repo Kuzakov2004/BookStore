@@ -18,6 +18,7 @@ type OrderRepo interface {
 	SaveBookQty(ctx context.Context, orderId int64, books []int64, qty []int) error
 	Pay(ctx context.Context, orderId int64, books []int64, qty []int) error
 	Send(ctx context.Context, orderId int64) error
+	DelBookFromOrder(ctx context.Context, orderId int64, bookId int64) error
 
 	FindClient(ctx context.Context, str string) (lst []*order.Client, e error)
 	FindBook(ctx context.Context, orderId int64, page, count int) (lst []*book.Book, e error)

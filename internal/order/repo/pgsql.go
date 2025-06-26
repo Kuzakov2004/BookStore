@@ -18,16 +18,17 @@ type wrhsBookQty struct {
 type orderRepo struct {
 	connPool *sql.DB
 
-	queryOrdersStmt     *sql.Stmt
-	getOrdersCntStmt    *sql.Stmt
-	getOrderStmt        *sql.Stmt
-	queryOrderItemsStmt *sql.Stmt
-	createOrderStmt     *sql.Stmt
-	setOrderClientStmt  *sql.Stmt
-	saveShipStmt        *sql.Stmt
-	addBookStmt         *sql.Stmt
-	saveBookQtyStmt     *sql.Stmt
-	updateStatusStmt    *sql.Stmt
+	queryOrdersStmt      *sql.Stmt
+	getOrdersCntStmt     *sql.Stmt
+	getOrderStmt         *sql.Stmt
+	queryOrderItemsStmt  *sql.Stmt
+	createOrderStmt      *sql.Stmt
+	setOrderClientStmt   *sql.Stmt
+	saveShipStmt         *sql.Stmt
+	addBookStmt          *sql.Stmt
+	saveBookQtyStmt      *sql.Stmt
+	updateStatusStmt     *sql.Stmt
+	delBookFromOrderStmt *sql.Stmt
 
 	updateWrhsQtyStmt  *sql.Stmt
 	queryWrhsBooksStmt *sql.Stmt
@@ -102,6 +103,11 @@ func NewOrderRepo(db *sql.DB) (OrderRepo, error) {
 	}
 
 	r.saveShipStmt, e = db.Prepare(`update store.orders set ship_name=$2, ship_address=$3, ship_city=$4, ship_zip_code=$5, ship_country=$6 where id = $1`)
+	if e != nil {
+		return nil, e
+	}
+
+	r.delBookFromOrderStmt, e = db.Prepare(`delete from store.order_items where order_id = $1 and book_id = $2`)
 	if e != nil {
 		return nil, e
 	}
@@ -284,6 +290,16 @@ func (r *orderRepo) SetOrderClient(ctx context.Context, orderId int64, clientId 
 	return nil
 }
 
+func (r *orderRepo) DelBookFromOrder(ctx context.Context, orderId int64, bookId int64) error {
+	_, e := r.delBookFromOrderStmt.Exec(orderId, bookId)
+	if e != nil {
+		log.Println("DelBookFromOrder", "Error del book from order [", e, "]")
+		return fmt.Errorf("error del book from order %w", e)
+	}
+
+	return nil
+}
+
 func (r *orderRepo) SaveShip(ctx context.Context, orderId int64, ship *order.Ship) error {
 	//ship_name=$2, ship_address=$3, ship_city=$4, ship_zip_code=$5, ship_country=$6 where id = $1
 	_, e := r.saveShipStmt.Exec(orderId, ship.Name, ship.Address, ship.City, ship.ZipCode, ship.Country)
@@ -365,7 +381,7 @@ func (r *orderRepo) Send(ctx context.Context, orderId int64) error {
 		}
 	}
 
-	_, e = r.updateStatusStmt.Exec(orderId, "C")
+	_, e = r.updateStatusStmt.Exec(orderId, "S")
 	if e != nil {
 		log.Println("Send", "Error send [", e, "]")
 		return fmt.Errorf("error send %w", e)

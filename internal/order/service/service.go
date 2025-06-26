@@ -19,6 +19,7 @@ type OrderService interface {
 	SaveBookQty(ctx context.Context, orderId int64, books []int64, qty []int) error
 	Pay(ctx context.Context, orderId int64, books []int64, qty []int) error
 	Send(ctx context.Context, orderId int64) error
+	DelBookFromOrder(ctx context.Context, orderId int64, bookId int64) error
 
 	FindClient(ctx context.Context, str string) (lst []*order.Client, e error)
 	FindBook(ctx context.Context, orderId int64, page, count int) (lst []*book.Book, e error)
@@ -146,6 +147,16 @@ func (s *orderService) Send(ctx context.Context, orderId int64) error {
 	if e != nil {
 		log.Println("Send", "Error send", " [", e, "]")
 		return fmt.Errorf("error send [%w]", e)
+	}
+
+	return nil
+}
+
+func (s *orderService) DelBookFromOrder(ctx context.Context, orderId int64, bookId int64) error {
+	e := s.repo.DelBookFromOrder(ctx, orderId, bookId)
+	if e != nil {
+		log.Println("DelBookFromOrder", "Error del book from order", " [", e, "]")
+		return fmt.Errorf("error del book from order [%w]", e)
 	}
 
 	return nil

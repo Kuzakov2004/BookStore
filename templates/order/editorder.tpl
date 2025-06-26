@@ -112,7 +112,12 @@
                     <th>Price</th>
                     <th>Qty</th>
                     <th>In stock</th>
+                    {{ if eq .order.Status "N" }}
+                        <th>&nbsp;</th>
+                    {{ end }}
                 </tr>
+                {{$oid := .order.ID}}
+                {{$os := .order.Status}}
                 {{ range $index, $value := .order.Items }}
                 <tr>
                     <td>{{ .BookTitle }}</td>
@@ -123,6 +128,11 @@
                         <input type="text" name="qty" class="form-control" value="{{ .Qty }}">
                     </td>
                     <td>{{ .InStock }}</td>
+                    {{ if eq $os "N" }}
+                    <td>
+                        <a href="/admin/order/{{ $oid }}/delbook?book={{.BookID}}">Delete</a>
+                    </td>
+                    {{ end }}
                 </tr>
                 {{ end }}
             </table>
