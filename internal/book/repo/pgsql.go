@@ -15,6 +15,8 @@ type bookRepo struct {
 	getBooksCntStmt    *sql.Stmt
 	queryFindBooksStmt *sql.Stmt
 	getBookInfoStmt    *sql.Stmt
+
+	queryAuthorsStmt *sql.Stmt
 }
 
 func NewBookRepo(db *sql.DB) (BookRepo, error) {
@@ -22,7 +24,17 @@ func NewBookRepo(db *sql.DB) (BookRepo, error) {
 	r := &bookRepo{connPool: db}
 	var e error
 
-	r.queryBooksStmt, e = db.Prepare(`SELECT b.id, b.isbn, b.title, b.price, p.name publisher, a.first_name || ' ' || a.last_name author, b.publication_year, b.genre 
+	r.queryBooksStmt, e = db.Prepare(`SELECT b.id, b.isbn, b.title, b.price, p.name publisher, a.first_name || ' ' || a.middle_name || ' ' || a.last_name author, b.publication_year, b.genre 
+											FROM store.books b 
+											JOIN store.publishers p ON (b.publisher_id = p.id)
+											JOIN store.authors a ON (b.author_id = a.id)
+											WHERE b.genre = $1 OR $1 = '' OR $1 IS NULL ORDER BY b.title DESC
+    										LIMIT $2 OFFSET $3`)
+	if e != nil {
+		return nil, e
+	}
+
+	r.queryBooksStmt, e = db.Prepare(`SELECT b.id, b.isbn, b.title, b.price, p.name publisher, a.first_name || ' ' || a.middle_name || ' ' || a.last_name author, b.publication_year, b.genre 
 											FROM store.books b 
 											JOIN store.publishers p ON (b.publisher_id = p.id)
 											JOIN store.authors a ON (b.author_id = a.id)
@@ -41,6 +53,12 @@ func NewBookRepo(db *sql.DB) (BookRepo, error) {
 		return nil, e
 	}
 
+	r.queryAuthorsStmt, e = db.Prepare(`SELECT a.id, a.first_name || ' ' || a.middle_name || ' ' || a.last_name
+											  FROM store.authors a`)
+	if e != nil {
+		return nil, e
+	}
+
 	r.queryFindBooksStmt, e = db.Prepare(`SELECT b.id, b.isbn, b.title, b.price, p.name publisher, a.first_name || ' ' || a.last_name author, b.publication_year, b.genre 
 											FROM store.books b 
 											JOIN store.publishers p ON (b.publisher_id = p.id)
@@ -52,7 +70,7 @@ func NewBookRepo(db *sql.DB) (BookRepo, error) {
 		return nil, e
 	}
 
-	r.getBookInfoStmt, e = db.Prepare(`SELECT b.id, b.isbn, b.title, b.price, p.name publisher, a.first_name || ' ' || a.last_name author, b.publication_year, b.genre,
+	r.getBookInfoStmt, e = db.Prepare(`SELECT b.id, b.isbn, b.title, b.price, p.id, p.name publisher, b.author_id, a.first_name || ' ' || a.last_name author, b.publication_year, b.genre,
        												b.descr, (select count(*) from store.warehouse_books wb where wb.book_id = b.id)
 											FROM store.books b 
 											JOIN store.publishers p ON (b.publisher_id = p.id)
@@ -107,7 +125,27 @@ func (r *bookRepo) GetBooksCnt(ctx context.Context, genre string) (total int, e 
 	}
 	return total, e
 }
+func (r *bookRepo) GetAuthors(ctx context.Context) (lst []*book.Author, e error) {
+	lst = make([]*book.Author, 0, 100)
 
+	rows, e := r.queryAuthorsStmt.Query()
+	if e != nil {
+		return nil, e
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		a := &book.Author{}
+		if e = rows.Scan(&a.ID, &a.FIO); e != nil {
+			log.Println("Find", "Error get authors [", e, "]")
+			return nil, fmt.Errorf("error get authors %w", e)
+		}
+		lst = append(lst, a)
+	}
+
+	return lst, nil
+}
 func (r *bookRepo) Find(ctx context.Context, findStr string) (lst []*book.Book, e error) {
 	lst = make([]*book.Book, 0, 100)
 
@@ -134,7 +172,7 @@ func (r *bookRepo) Find(ctx context.Context, findStr string) (lst []*book.Book, 
 func (r *bookRepo) GetBook(ctx context.Context, id int64) (*book.FullInfo, error) {
 	var b book.FullInfo
 	var descr sql.NullString
-	e := r.getBookInfoStmt.QueryRow(id).Scan(&b.ID, &b.ISBN, &b.Title, &b.Price, &b.Publisher, &b.Author, &b.PublicationYear, &b.Genre,
+	e := r.getBookInfoStmt.QueryRow(id).Scan(&b.ID, &b.ISBN, &b.Title, &b.Price, &b.PublisherID, &b.Publisher, &b.AuthorID, &b.Author, &b.PublicationYear, &b.Genre,
 		&descr, &b.Qty)
 	if e != nil {
 		log.Println("Find", "Error get books [", e, "]")

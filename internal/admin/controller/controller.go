@@ -8,7 +8,7 @@ import (
 	"BookStore/internal/config"
 	"BookStore/internal/publisher"
 	service3 "BookStore/internal/publisher/service"
-	service4  "BookStore/internal/warehouse/service"
+	service4 "BookStore/internal/warehouse/service"
 	controller2 "BookStore/pkg/controller"
 	"fmt"
 	"log"
@@ -85,24 +85,46 @@ func (c *controller) bookEdit(gc *gin.Context) {
 
 	id, _ := strconv.ParseInt(gc.Param("id"), 10, 64)
 	book, e := c.bookSrvc.GetBook(gc.Request.Context(), id)
-
 	if e != nil {
 		log.Println("Error get book", e)
 	}
 
+	authors, e := c.bookSrvc.GetAuthors(gc.Request.Context())
+	if e != nil {
+		log.Println("Error get authors %w", e)
+	}
+
+	publishers, _, e := c.publisherSrvc.GetPublishers(gc.Request.Context(), 0, 1000)
+	if e != nil {
+		log.Println("Error get publishers %w", e)
+	}
+
 	gc.HTML(200, "admin/bookedit.tpl", gin.H{
-		"title":    book.Title,
-		"book":     book,
-		"isCreate": false,
+		"title":      book.Title,
+		"book":       book,
+		"authors":    authors,
+		"publishers": publishers,
+		"isCreate":   false,
 	})
 }
 
 func (c *controller) bookCreate(gc *gin.Context) {
 
+	authors, e := c.bookSrvc.GetAuthors(gc.Request.Context())
+	if e != nil {
+		log.Println("Error get authors %w", e)
+	}
+	publishers, _, e := c.publisherSrvc.GetPublishers(gc.Request.Context(), 0, 1000)
+	if e != nil {
+		log.Println("Error get publishers %w", e)
+	}
+
 	gc.HTML(200, "admin/bookedit.tpl", gin.H{
-		"title":    "Новая книга",
-		"book":     book.FullInfo{},
-		"isCreate": true,
+		"title":      "Новая книга",
+		"book":       book.FullInfo{},
+		"authors":    authors,
+		"publishers": publishers,
+		"isCreate":   true,
 	})
 }
 

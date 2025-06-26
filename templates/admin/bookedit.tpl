@@ -26,7 +26,25 @@
             </tr>
             <tr>
                 <th>Author</th>
-                <td><input type="text" name="author" value="{{ .book.Author }}" required></td>
+                <td>
+                {{$a := .book.AuthorID}}
+                <select class="form-select" aria-label="Author" name="author_id" value="{{ .book.AuthorID }}">
+                {{ range $index, $value := .authors }}
+                  <option value="{{ .ID }}" {{ if eq $a .ID }} selected {{ end }}>{{ .FIO }}</option>
+                {{ end }}
+                </select>
+                </td>
+            </tr>
+            <tr>
+                <th>Publisher</th>
+                <td>
+                {{$p := .book.PublisherID}}
+                <select class="form-select" aria-label="Author" name="publisher_id" value="{{ .book.PublisherID }}">
+                {{ range $index, $value := .publishers }}
+                  <option value="{{ .ID }}" {{ if eq $p .ID }} selected {{ end }}>{{ .Name }}</option>
+                {{ end }}
+                </select>
+                </td>
             </tr>
             <tr>
                 <th>Image</th>

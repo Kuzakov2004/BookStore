@@ -75,7 +75,7 @@ func (r *adminRepo) CreateBook(ctx context.Context, info *book.FullInfo) (int64,
 
 	var id int64
 	//isbn, title, descr, price, publisher_id, author_id, publication_year, genre
-	if e := r.createStmt.QueryRow(info.ISBN, info.Title, info.Descr, info.Price, 1, 1, info.PublicationYear, info.Genre).Scan(&id); e != nil {
+	if e := r.createStmt.QueryRow(info.ISBN, info.Title, info.Descr, info.Price, info.PublisherID, info.AuthorID, info.PublicationYear, info.Genre).Scan(&id); e != nil {
 		log.Println("Error update book [", e, "]")
 		return 0, fmt.Errorf("error update book %w", e)
 	}
@@ -85,7 +85,7 @@ func (r *adminRepo) CreateBook(ctx context.Context, info *book.FullInfo) (int64,
 func (r *adminRepo) UpdateBook(ctx context.Context, info *book.FullInfo) error {
 
 	//isbn, title, descr, price, publisher_id, author_id, publication_year, genre
-	if _, e := r.updateStmt.Exec(info.ISBN, info.Title, info.Descr, info.Price, 1, 1, info.PublicationYear, info.Genre, info.ID); e != nil {
+	if _, e := r.updateStmt.Exec(info.ISBN, info.Title, info.Descr, info.Price, info.PublisherID, info.AuthorID, info.PublicationYear, info.Genre, info.ID); e != nil {
 		log.Println("Error update book [", e, "]")
 		return fmt.Errorf("error update book %w", e)
 	}

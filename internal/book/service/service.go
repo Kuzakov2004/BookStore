@@ -13,6 +13,7 @@ type BookService interface {
 	GetBooks(ctx context.Context, genre string, page, count int) (lst []*book.Book, total int, e error)
 	FindBooks(ctx context.Context, searchStr string) (lst []*book.Book, e error)
 	GetBook(ctx context.Context, id int64) (*book.FullInfo, error)
+	GetAuthors(ctx context.Context) ([]*book.Author, error)
 }
 
 type bookService struct {
@@ -60,4 +61,14 @@ func (s *bookService) GetBook(ctx context.Context, id int64) (*book.FullInfo, er
 	}
 
 	return b, nil
+}
+
+func (s *bookService) GetAuthors(ctx context.Context) (lst []*book.Author, e error) {
+	lst, e = s.repo.GetAuthors(ctx)
+	if e != nil {
+		log.Println("GetAuthors", "Error get authors ", " [", e, "]")
+		return nil, fmt.Errorf("error get authors [%w]", e)
+	}
+
+	return lst, nil
 }
