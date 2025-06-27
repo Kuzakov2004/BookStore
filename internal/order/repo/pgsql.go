@@ -18,17 +18,18 @@ type wrhsBookQty struct {
 type orderRepo struct {
 	connPool *sql.DB
 
-	queryOrdersStmt      *sql.Stmt
-	getOrdersCntStmt     *sql.Stmt
-	getOrderStmt         *sql.Stmt
-	queryOrderItemsStmt  *sql.Stmt
-	createOrderStmt      *sql.Stmt
-	setOrderClientStmt   *sql.Stmt
-	saveShipStmt         *sql.Stmt
-	addBookStmt          *sql.Stmt
-	saveBookQtyStmt      *sql.Stmt
-	updateStatusStmt     *sql.Stmt
-	delBookFromOrderStmt *sql.Stmt
+	queryOrdersStmt       *sql.Stmt
+	getOrdersCntStmt      *sql.Stmt
+	getOrderStmt          *sql.Stmt
+	queryOrderItemsStmt   *sql.Stmt
+	createOrderStmt       *sql.Stmt
+	setOrderClientStmt    *sql.Stmt
+	saveShipStmt          *sql.Stmt
+	addBookStmt           *sql.Stmt
+	saveBookQtyStmt       *sql.Stmt
+	updateStatusStmt      *sql.Stmt
+	delBookFromOrderStmt  *sql.Stmt
+	updateOrderAmountStmt *sql.Stmt
 
 	updateWrhsQtyStmt  *sql.Stmt
 	queryWrhsBooksStmt *sql.Stmt
@@ -74,7 +75,7 @@ func NewOrderRepo(db *sql.DB) (OrderRepo, error) {
 	}
 
 	r.getOrderStmt, e = db.Prepare(`SELECT o.id, coalesce(o.client_id, 0), COALESCE(c.first_name || ' ' || c.last_name, ''), COALESCE(c.phone,''), COALESCE(o.amount, 0), 
-       										COALESCE(o.dt, now()),
+       										COALESCE(o.dt, now()), COALESCE(o.qty),
 											COALESCE(o.ship_name, ''), COALESCE(o.ship_address, ''), COALESCE(o.ship_city, ''), COALESCE(o.ship_zip_code, ''),
        										COALESCE(o.ship_country, ''), o.status
 											FROM store.orders o
@@ -98,6 +99,13 @@ func NewOrderRepo(db *sql.DB) (OrderRepo, error) {
 	}
 
 	r.setOrderClientStmt, e = db.Prepare(`update store.orders set client_id= $2 where id = $1`)
+	if e != nil {
+		return nil, e
+	}
+
+	r.updateOrderAmountStmt, e = db.Prepare(`update store.orders set 
+                        amount=(select sum(oi.item_price*oi.qty) from store.order_items oi where oi.order_id=$1),
+                        qty=(select sum(oi.qty) from store.order_items oi where oi.order_id=$1) where id = $1`)
 	if e != nil {
 		return nil, e
 	}
@@ -240,7 +248,7 @@ func (r *orderRepo) GetOrder(ctx context.Context, id int64) (*order.OrderDetail,
 	//o.id, o.client_id, c.first_name || ' ' || c.last_name, c.phone, o.amount, o.dt
 	//o.ship_name, o.ship_address, o.ship_city, o.ship_zip_code, o.ship_country
 
-	e := r.getOrderStmt.QueryRow(id).Scan(&o.ID, &o.ClientID, &o.ClientFIO, &o.ClientPhone, &o.Amount, &o.Dt,
+	e := r.getOrderStmt.QueryRow(id).Scan(&o.ID, &o.ClientID, &o.ClientFIO, &o.ClientPhone, &o.Amount, &o.Dt, &o.Qty,
 		&o.Ship.Name, &o.Ship.Address, &o.Ship.City, &o.Ship.ZipCode, &o.Ship.Country, &o.Status)
 	if e != nil {
 		log.Println("GetOrder", "Error get order [", e, "]")
@@ -321,6 +329,12 @@ func (r *orderRepo) AddBooks(ctx context.Context, orderId int64, books []int64) 
 		}
 	}
 
+	_, e := r.updateOrderAmountStmt.Exec(orderId)
+	if e != nil {
+		log.Println("SaveBookQty", "Error update order amount [", e, "]")
+		return fmt.Errorf("error update order amoun %w", e)
+	}
+
 	return nil
 }
 
@@ -332,6 +346,12 @@ func (r *orderRepo) SaveBookQty(ctx context.Context, orderId int64, books []int6
 			log.Println("SaveBookQty", "Error save book qty [", e, "]")
 			return fmt.Errorf("error save book qty %w", e)
 		}
+	}
+
+	_, e := r.updateOrderAmountStmt.Exec(orderId)
+	if e != nil {
+		log.Println("SaveBookQty", "Error update order amount [", e, "]")
+		return fmt.Errorf("error update order amoun %w", e)
 	}
 
 	return nil

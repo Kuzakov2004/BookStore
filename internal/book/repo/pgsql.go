@@ -34,16 +34,6 @@ func NewBookRepo(db *sql.DB) (BookRepo, error) {
 		return nil, e
 	}
 
-	r.queryBooksStmt, e = db.Prepare(`SELECT b.id, b.isbn, b.title, b.price, p.name publisher, a.first_name || ' ' || a.middle_name || ' ' || a.last_name author, b.publication_year, b.genre 
-											FROM store.books b 
-											JOIN store.publishers p ON (b.publisher_id = p.id)
-											JOIN store.authors a ON (b.author_id = a.id)
-											WHERE b.genre = $1 OR $1 = '' OR $1 IS NULL ORDER BY b.title DESC
-    										LIMIT $2 OFFSET $3`)
-	if e != nil {
-		return nil, e
-	}
-
 	r.getBooksCntStmt, e = db.Prepare(`SELECT count(*) 
 											FROM store.books b 
 											JOIN store.publishers p ON (b.publisher_id = p.id)
